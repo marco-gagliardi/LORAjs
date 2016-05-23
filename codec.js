@@ -61,7 +61,6 @@ function MACPayload(bytes) {
 
 
 exports.decode = function(keyStore, phyPayload) {
-
     return new PhyPayload(phyPayload);
 };
 
