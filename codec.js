@@ -1,67 +1,49 @@
 /***
- *  phyPayload  bytestring =  MHDR  (1 B) + MACPayload + MIC (4 B)
+ *  PhyPayload:
+ *      MHDR  (1 B)                     //First byte
+ *      MACPayload (total length - 5 B) // Variable length
+ *          FHDR  [7 .. 23 B]           // Minimum 7 Bytes, up to 23.
+ *              DevAddr (4 B)           // Mandatory
+ *              FCtrl (1 B)             // Mandatory
+ *              FCnt (2 B)              // Mandatory
+ *              FOpts [0..15 B]         // Optional. FOpts length is stated by the last 4 bits of Fctrl (max 2^4 - 1 = 15 bytes)
+ *          FPort [0, 1 B]              // 1 Byte. Mandatory if  FRMPayload is present
+ *          FRMPayload (? B)            // Variable length. FHDR + Fport + FRMPayload ≤ maximum MAC payload length
+ *      MIC (4 B)                       // last 4 bytes
  *
- *  MACPayload = FHDR  (da 7 a 23) +      FPort (1 B opzionale)  +     FRMPayload
- *
- *  FHDR : DevAddr (4 B) + FCtrl (1B) + FCnt (2 B) + FOpts (0..15) La lunghezza di FOpts è indicata negli ultimi 4 bit di Fctrl
- *
- *  FPort :  1 Byte obbligatorio se FRMPayload è presente
- *
- *  FRMPayload: N byte lunghezza variabile. FHDR + Fport (1) + N ≤ maximum MAC payload length.
  *
  */
-
+var message = require("./message");
 var exports = module.exports = {};
 
 function PhyPayload (bytes) {
-
-    /***
-     * @type {null}
-     *
-     * PhyPayload  =  MHDR  (1 B)
-     *                MACPayload [1, length-5]
-     *                MIC (4 B)
-     *
-     */
-
     this.MHDR = [bytes[0]] ;
     this.MACPayload = bytes.length > 5 ? new MACPayload(bytes.slice(1,bytes.length-4)) : null;
     this.MIC = bytes.slice(-4);
-
 }
 
 function MACPayload(bytes) {
-    /***
-     * MACPayload = FHDR  (da 7 a 23) +      FPort (1 B opzionale)  +     FRMPayload
-     *
-     *  FHDR : DevAddr (4 B) +
-     *         FCtrl (1B) +
-     *         FCnt (2 B) +
-     */
-
     var getFOptsLength = function(fctrl) {
-        //FOpts (0..15) La lunghezza di FOpts è indicata negli ultimi 4 bit di Fctrl
-
+        //FOpts length is stated by the last 4 bits of Fctrl (max 2^4 - 1 = 15 bytes)
     };
 
     this.FHDR = {
         DevAddr: bytes.slice(0,4),
-        FCtrl: bytes[4] ? [bytes[4]] : [],
-        FCnt: bytes.slice(5,6),
+        FCtrl: bytes[4] ? [bytes[4]] : null,
+        FCnt: bytes.slice(5,6)
     };
-    this.FHDR.FOpts = bytes.length == 7 ? [] : bytes.slice(6, getFOptsLength(this.FHDR.FCtrl));
+    this.FHDR.FOpts = bytes.length == 7 ? null : bytes.slice(6, getFOptsLength(this.FHDR.FCtrl));
 
     var FHDRLength = this.FHDR.DevAddr.length + this.FHDR.FCtrl.length + this.FHDR.FCnt.length  + this.FHDR.FOpts.length;
 
-    this.FPort = bytes.length > FHDRLength ? bytes[FHDRLength] : [];
-
-    this.FRMPayload = bytes.length > FHDRLength+1 ?  bytes.slice(FHDRLength+1) : []
-
+    //  FPort:  1 Byte, Mandatory if  FRMPayload is present
+    this.FPort = bytes.length > FHDRLength ? bytes[FHDRLength] : null;
+    this.FRMPayload = bytes.length > FHDRLength+1 ?  bytes.slice(FHDRLength+1) : null;
 }
 
 
-exports.decode = function(keyStore, phyPayload) {
-    return new PhyPayload(phyPayload);
+exports.decode = function(keyStore, m) {
+    return new PhyPayload(message.uplinkMessage(m));
 };
 
 exports.encode = function(keyStore, phyPayload) {
