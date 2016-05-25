@@ -14,6 +14,7 @@
  *
  */
 var message = require("./message");
+var utils = require("./utils");
 var exports = module.exports = {};
 
 function PhyPayload (bytes) {
@@ -25,6 +26,7 @@ function PhyPayload (bytes) {
 function MACPayload(bytes) {
     var getFOptsLength = function(fctrl) {
         //FOpts length is stated by the last 4 bits of Fctrl (max 2^4 - 1 = 15 bytes)
+        return utils.readBits(fctrl, 4,7)
     };
 
     this.FHDR = {
