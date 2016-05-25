@@ -19,6 +19,7 @@ var exports = module.exports = {};
 
 function PhyPayload (bytes) {
     this.MHDR = bytes[0];
+    this.MType = utils.readBits(this.MHDR, 0,2);
     this.MACPayload = bytes.length > 5 ? new MACPayload(bytes.slice(1,bytes.length-4)) : null;
     this.MIC = bytes.slice(-4);
 }

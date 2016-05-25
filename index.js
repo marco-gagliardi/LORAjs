@@ -9,7 +9,7 @@ exports.test = function () {
 
     var msg = [
         //MHDR (1B)
-        0x4,
+        0xFF,
         //MACPayload
             //FHDR
                 //DevAddr (4 B)   
@@ -23,7 +23,7 @@ exports.test = function () {
             //FPort [1 B]
             0x01,
             //FRMPayload (? B) 
-            0x01, 0x20, 0x01, 0x20,
+            0x01, 0x20, 0x01, 0x20,0x01, 0x20, 0x01, 0x20,
         //MIC (4B)
         0x01, 0x20, 0x01, 0x0];
 
