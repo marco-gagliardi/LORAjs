@@ -12,17 +12,17 @@ exports.test = function () {
         0xFF,
         //MACPayload
             //FHDR
-                //DevAddr (4 B)   
+                //DevAddr (4B)   
                 0xFF, 0x01, 0x20, 0x01,
-                //FCtrl (1 B) -> ultimi 3 bit = 101 = 5 (lunghezza Fopts)
+                //FCtrl (1B) -> last 3 bits = 101 = 5 (Fopts length)
                 0x25,
-                //FCnt (2 B)
+                //FCnt (2B)
                 0x01, 0x20,
-                //FOpts [5 B]
+                //FOpts (5B)
                 0x01, 0x20, 0x01, 0x20,0x20,
-            //FPort [1 B]
+            //FPort (1B)
             0x01,
-            //FRMPayload (? B) 
+            //FRMPayload  
             0x01, 0x20, 0x01, 0x20,0x01, 0x20, 0x01, 0x20,
         //MIC (4B)
         0x01, 0x20, 0x01, 0x0];
