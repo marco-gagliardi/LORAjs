@@ -71,6 +71,7 @@ var exports = module.exports = {
         // console.log("octet:   ",  this.splitByte(octet));
         // console.log("shifted  ", this.splitByte(octet >> shift));
         // console.log("mask     ", this.splitByte(mask));
+        // console.log("result   ", ((octet >> shift) & mask));
         return ((octet >> shift) & mask) ;
     }
 };

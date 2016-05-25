@@ -1,7 +1,7 @@
 /***
  *  PhyPayload:
- *      MHDR  (1 B)                     //First byte
- *      MACPayload (total length - 5 B) // Variable length
+ *      MHDR  (1B)                     //First byte
+ *      MACPayload (total length - 5B) // Variable length
  *          FHDR  [7 .. 23 B]           // Minimum 7 Bytes, up to 23.
  *              DevAddr (4 B)           // Mandatory
  *              FCtrl (1 B)             // Mandatory
@@ -18,7 +18,7 @@ var utils = require("./utils");
 var exports = module.exports = {};
 
 function PhyPayload (bytes) {
-    this.MHDR = [bytes[0]] ;
+    this.MHDR = bytes[0];
     this.MACPayload = bytes.length > 5 ? new MACPayload(bytes.slice(1,bytes.length-4)) : null;
     this.MIC = bytes.slice(-4);
 }
@@ -32,12 +32,12 @@ function MACPayload(bytes) {
 
     this.FHDR = {
         DevAddr: bytes.slice(0,4),
-        FCtrl: bytes[4] ? [bytes[4]] : null,
-        FCnt: bytes.slice(5,6)
+        FCtrl: bytes[4] ? bytes[4] : null,
+        FCnt: bytes.slice(5,7)
     };
-    this.FHDR.FOpts = bytes.length == 7 ? null : bytes.slice(6, getFOptsLength(this.FHDR.FCtrl));
+    this.FHDR.FOpts = bytes.length == 7 ? null : bytes.slice(7, 7+getFOptsLength(this.FHDR.FCtrl));
 
-    var FHDRLength = this.FHDR.DevAddr.length + this.FHDR.FCtrl.length + this.FHDR.FCnt.length  + this.FHDR.FOpts.length;
+    var FHDRLength = 7 + this.FHDR.FOpts.length;
 
     //  FPort:  1 Byte, Mandatory if  FRMPayload is present
     this.FPort = bytes.length > FHDRLength ? bytes[FHDRLength] : null;
